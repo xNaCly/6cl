@@ -3,11 +3,13 @@
 
 // SixStr is a 0 copy window into a string
 typedef struct {
-  const char *start;
+  const char *p;
   size_t len;
 } SixStr;
 
-#define SIX_STR_NEW(CSTR) (SixStr){.start = (CSTR), .len = sizeof(CSTR) - 1}
+#define SIX_STR_NEW(CSTR) (SixStr){.p = (CSTR), .len = sizeof(CSTR) - 1}
+#define SIX_STR_NEW_RUNTIME(CSTR)                                              \
+  (SixStr) { .p = (CSTR), .len = strnlen(CSTR, 256) }
 
 typedef enum {
   SIX_STR,
@@ -28,8 +30,8 @@ typedef struct {
   char short_name;
   // Defines the datatype
   SixFlagType type;
-  // Flag is required
-  bool required;
+  // used in the help page
+  const char *description;
 
   // typed result values, will be filled with the value if any is found found
   // for the option, or with the default value thats already set.
@@ -49,15 +51,9 @@ typedef struct {
   size_t flag_count;
   // usage will be postfixed with this
   const char *name_for_rest_arguments;
-} SixHeader;
-
-typedef struct {
   // rest holds all arguments not matching any defined options
-  const SixStr *rest;
+  SixStr *rest;
   size_t rest_count;
-  // filled if parsing runs into an error
-  const char *error;
-  SixFlag *flags;
-} SixResult;
+} Six;
 
-SixResult SixParse(SixHeader header, size_t argc, char **argv);
+void SixParse(Six *six, size_t argc, char **argv);
