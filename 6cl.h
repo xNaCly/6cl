@@ -7,8 +7,7 @@ typedef struct {
   size_t len;
 } SixStr;
 
-#define SIX_STR_NEW(CSTR)                                                      \
-  (SixStr) { .start = (CSTR), .len = sizeof(CSTR) }
+#define SIX_STR_NEW(CSTR) (SixStr){.start = (CSTR), .len = sizeof(CSTR) - 1}
 
 typedef enum {
   SIX_STR,
@@ -27,11 +26,10 @@ typedef struct {
   const char *name;
   // short name, like -<short_name>; -h
   char short_name;
-  void *default_value;
-  // Defines the datatype for
+  // Defines the datatype
   SixFlagType type;
-  // Flag is optional,
-  bool optional;
+  // Flag is required
+  bool required;
 
   // typed result values, will be filled with the value if any is found found
   // for the option, or with the default value thats already set.
@@ -49,13 +47,14 @@ typedef struct {
 typedef struct {
   SixFlag *flags;
   size_t flag_count;
-  // usage will be postfixed with <files>
-  bool expect_more_files_as_args;
+  // usage will be postfixed with this
+  const char *name_for_rest_arguments;
 } SixHeader;
 
 typedef struct {
   // rest holds all arguments not matching any defined options
   const SixStr *rest;
+  size_t rest_count;
   // filled if parsing runs into an error
   const char *error;
   SixFlag *flags;
