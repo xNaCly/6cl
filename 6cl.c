@@ -130,6 +130,11 @@ void SixParse(Six *six, size_t argc, char **argv) {
         goto err;
       }
 
+      // we decrement option_idx, since we zero the lookup table, thus an
+      // empty value is 0 and the index of the first option is 1, we correct
+      // this here
+      option_idx--;
+
       // if not boolean, the next argument is the argument
       if (six->flags[option_idx].type != SIX_BOOL) {
         // TODO: parse arguments
@@ -139,7 +144,7 @@ void SixParse(Six *six, size_t argc, char **argv) {
       arg_cur.p++;
       arg_cur.len--;
 
-      // help page
+      // long help page with option description and stuff
       if (strncmp(arg_cur.p, help.p, help.len) == 0) {
         usage(argv[0], six);
         // TODO: print rest here
