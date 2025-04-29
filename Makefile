@@ -1,4 +1,5 @@
 FLAGS := -std=c23 \
+		 -D_GNU_SOURCE \
         -Wall \
         -Wextra \
         -Werror \
@@ -21,17 +22,17 @@ FLAGS := -std=c23 \
 		-Wno-unused-parameter \
 		-Wno-unused-function \
 		-Wno-unused-variable \
+		-Wno-unused-but-set-variable \
 		-Wno-aggregate-return
 
 FILES := $(shell find . -maxdepth 1 -name "*.c")
 TEST_FILES := $(shell find ./tests -name "*.c")
-
-.PHONY: test clean
+.PHONY: example test clean
 
 E=calc
 example: 
 	$(CC) $(FLAGS) -g3 -fsanitize=address,undefined -DDEBUG=0 examples/$(E).c $(FILES) -o ./examples/$(E).out
-	./examples/$(E).out
+	./examples/$(E).out +help
 
 test:
 	$(CC) $(FLAGS) -g3 -fsanitize=address,undefined -DDEBUG=0 $(TEST_FILES) $(FILES) -o ./tests/test.out
