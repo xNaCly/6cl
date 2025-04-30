@@ -24,9 +24,9 @@ typedef enum {
 // SixClFlag defines a singular command line option and will hold the value once
 // parsing is done
 typedef struct {
-  // name of the flag, for instance --<name>; --option
+  // name of the flag, for instance +<name>; +help
   const char *name;
-  // short name, like -<short_name>; -h
+  // short name, like +<short_name>; +h
   char short_name;
   // Defines the datatype
   SixFlagType type;

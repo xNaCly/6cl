@@ -25,7 +25,9 @@ static void usage(const char *pname, Six *h) {
   for (size_t i = 0; i < h->flag_count; i++) {
     SixFlag *f = &h->flags[i];
     char *pre_and_postfix = "[]";
-    printf("%c-%c | --%s", pre_and_postfix[0], f->short_name, f->name);
+    printf("%c %c%c | %c%s", pre_and_postfix[0], OPTION_PREFIX, f->short_name,
+           OPTION_PREFIX, f->name);
+
     if (f->type != SIX_BOOL) {
       printf("=<%s=", SIX_FLAG_TYPE_TO_MAP[f->type]);
       switch (f->type) {
@@ -126,7 +128,7 @@ void SixParse(Six *six, size_t argc, char **argv) {
       // check if short option is a registered one
       short option_idx = table_short[(short)arg_cur.p[1]];
       if (!option_idx) {
-        fprintf(stderr, "Unkown short option '+%c'\n", arg_cur.p[1]);
+        fprintf(stderr, "Unkown short option '%c'\n", arg_cur.p[1]);
         goto err;
       }
 
