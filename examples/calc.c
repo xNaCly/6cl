@@ -20,6 +20,7 @@
 #include "../6cl.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #define ERR(FMT, ...) fprintf(stderr, "calc: " FMT "\n", ##__VA_ARGS__);
 
@@ -80,9 +81,7 @@ int main(int argc, char **argv) {
     return EXIT_FAILURE;
   }
 
-  if (s.flags[VERBOSE].b) {
-    puts("VERBOSE mode");
-  }
+  bool verbose = s.flags[VERBOSE].b;
 
   Option op = UNKNOWN;
   for (Option i = 0; i < VERBOSE; i++) {
@@ -99,22 +98,68 @@ int main(int argc, char **argv) {
 
   switch (op) {
   case ADD:
-    puts("add");
-    break;
   case SUB:
-    puts("sub");
-    break;
   case DIV:
-    puts("div");
-    break;
   case MUL:
-    puts("mul");
+  case VERBOSE:
     break;
   case UNKNOWN:
   default:
-    ERR("Unkown option")
+    ERR("Unkown option / no option provided")
     break;
   }
+
+  double acum = 0;
+  for (size_t i = 0; i < s.rest_count; i++) {
+    char t[s.rest[i].len + 1];
+    memcpy(t, s.rest[i].p, s.rest[i].len);
+    t[s.rest[i].len] = 0;
+    double d = strtod(t, NULL);
+
+    if (verbose) {
+      printf("%g", d);
+      if (i + 1 < s.rest_count) {
+        switch (op) {
+        case ADD:
+          printf("+");
+          break;
+        case SUB:
+          printf("-");
+          break;
+        case DIV:
+          printf("/");
+          break;
+        case MUL:
+          printf("*");
+          break;
+        default:
+        }
+      }
+    }
+
+    if (i == 0) {
+      acum = d;
+      continue;
+    }
+
+    switch (op) {
+    case ADD:
+      acum += d;
+      break;
+    case SUB:
+      acum -= d;
+      break;
+    case DIV:
+      acum /= d;
+      break;
+    case MUL:
+      acum *= d;
+      break;
+    default:
+    }
+  }
+
+  printf("=%g\n", acum);
 
   return EXIT_SUCCESS;
 }

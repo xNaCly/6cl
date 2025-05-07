@@ -41,12 +41,19 @@ typedef struct {
   // typed result values, will be filled with the value if any is found found
   // for the option, or with the default value thats already set.
   union {
+    // string value
     SixStr s;
+    // boolean value
     bool b;
+    // char value
     char c;
+    // int value
     int i;
+    // long value
     long l;
+    // float value
     float f;
+    // double value
     double d;
   };
 } SixFlag;

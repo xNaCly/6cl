@@ -120,6 +120,7 @@ void SixParse(Six *six, size_t argc, char **argv) {
       // single char option usage/help page
       if (arg_cur.p[1] == 'h') {
         usage(argv[0], six);
+        exit(EXIT_SUCCESS);
         return;
       }
 
@@ -151,6 +152,7 @@ void SixParse(Six *six, size_t argc, char **argv) {
         usage(argv[0], six);
         // TODO: print rest here
         puts("HELPPAGE");
+        exit(EXIT_SUCCESS);
       }
     }
   }
