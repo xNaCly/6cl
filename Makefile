@@ -32,7 +32,6 @@ TEST_FILES := $(shell find ./tests -name "*.c")
 E=calc
 example: 
 	$(CC) $(FLAGS) -g3 -fsanitize=address,undefined -DDEBUG=0 examples/$(E).c $(FILES) -o ./examples/$(E).out
-	./examples/$(E).out +help
 
 test:
 	$(CC) $(FLAGS) -g3 -fsanitize=address,undefined -DDEBUG=0 $(TEST_FILES) $(FILES) -o ./tests/test.out

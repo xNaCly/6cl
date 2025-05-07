@@ -1,13 +1,18 @@
 #pragma once
 #include <stddef.h>
 
+#ifndef SIX_MAX_REST
+#define SIX_MAX_REST 16
+#endif
+
 // SixStr is a 0 copy window into a string
 typedef struct {
   const char *p;
   size_t len;
 } SixStr;
 
-#define SIX_STR_NEW(CSTR) (SixStr){.p = (CSTR), .len = sizeof(CSTR) - 1}
+#define SIX_STR_NEW(CSTR)                                                      \
+  (SixStr) { .p = (CSTR), .len = sizeof(CSTR) - 1 }
 #define SIX_STR_NEW_RUNTIME(CSTR)                                              \
   (SixStr) { .p = (CSTR), .len = strnlen(CSTR, 256) }
 
@@ -46,13 +51,13 @@ typedef struct {
   };
 } SixFlag;
 
-typedef struct {
+typedef struct Six {
   SixFlag *flags;
   size_t flag_count;
   // usage will be postfixed with this
   const char *name_for_rest_arguments;
   // rest holds all arguments not matching any defined options
-  SixStr *rest;
+  SixStr rest[SIX_MAX_REST];
   size_t rest_count;
 } Six;
 

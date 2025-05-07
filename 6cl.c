@@ -81,8 +81,6 @@ static size_t fnv1a(const char *str) {
 }
 
 void SixParse(Six *six, size_t argc, char **argv) {
-  SixStr rest[argc];
-  six->rest = rest;
   SixStr help = SIX_STR_NEW("help");
 
   // maps a strings hash to its index into the option array
@@ -140,6 +138,8 @@ void SixParse(Six *six, size_t argc, char **argv) {
       // if not boolean, the next argument is the argument
       if (six->flags[option_idx].type != SIX_BOOL) {
         // TODO: parse arguments
+      } else {
+        six->flags[option_idx].b = true;
       }
     } else {
       // strip first char by moving the start of the window one to the right
