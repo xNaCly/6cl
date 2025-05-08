@@ -3,33 +3,82 @@
  * labeled, and with verbose output for each roll.
  *
  * $ gcc ./dice.c ../6cl.c -o dice
- * $ ./dice +n 4 +sides 6
- * =14
- * $ ./dice +n 2 +sides 20 +label "STR"
- * STR: =29
- * $ ./dice +n 3 +sides 10 +v
+ * $ ./dice +n 4 +m 6
+ * => 14
+ * $ ./dice +rolls 2 +sides 20 +label "STR"
+ * STR: => 29
+ * $ ./dice +n 3 +m 10 +v
  * Rolled: 3 + 7 + 5 =15
  */
 #include "../6cl.h"
+#include <assert.h>
+#include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 
-#define ERR(FMT, ...) fprintf(stderr, "dice: " FMT "\n", __VA_ARGS__);
+#define ERR(FMT, ...) fprintf(stderr, "dice: " FMT "\n", ##__VA_ARGS__);
+
+void dice(int *throws, unsigned int n, unsigned int m) {
+  for (size_t i = 0; i < n; i++) {
+    throws[i] = (rand() % m) + 1;
+  }
+}
+
+typedef enum { UNKNOWN = -1, ROLLS, SIDES, LABEL, VERBOSE } Option;
 
 int main(int argc, char **argv) {
+  srand((unsigned int)time(NULL));
+
   SixFlag options[] = {
-      {.name = "amount", .short_name = 'a', .d = 0.0, .type = SIX_DOUBLE},
-      {.name = "people", .short_name = 'p', .i = 1, .type = SIX_INT},
-      {.name = "tip", .short_name = 't', .i = 0, .type = SIX_INT},
-      {.name = "label",
-       .short_name = 'l',
-       .s = SIX_STR_NEW(""),
-       .type = SIX_STR},
-      {.name = "round", .short_name = 'r', .b = false, .type = SIX_BOOL},
+      [ROLLS] = {.name = "rolls",
+                 .short_name = 'n',
+                 .i = 2,
+                 .type = SIX_INT,
+                 .description = "times to roll"},
+      [SIDES] = {.name = "sides",
+                 .short_name = 'm',
+                 .i = 6,
+                 .type = SIX_INT,
+                 .description = "sides the dice has"},
+      [LABEL] =
+          {
+              .name = "label",
+              .short_name = 'l',
+              .s = SIX_STR_NEW("=> "),
+              .type = SIX_STR,
+              .description = "prefix for the dice roll result",
+          },
+      [VERBOSE] =
+          {
+              .name = "verbose",
+              .short_name = 'v',
+              .type = SIX_BOOL,
+              .description = "print all rolls, not only the result",
+          },
   };
   Six s = {0};
   s.flags = options;
   s.flag_count = sizeof(options) / sizeof(SixFlag);
 
   SixParse(&s, argc, argv);
+  if (options[ROLLS].i < 1) {
+    ERR("Rolls can't be < 1");
+    return EXIT_FAILURE;
+  }
+
+  int throws[options[ROLLS].i];
+  dice(throws, options[ROLLS].i, options[SIDES].i);
+
+  int cum = 0;
+  for (int i = 0; i < options[ROLLS].i; i++) {
+    int roll = throws[i];
+    cum += roll;
+    if (options[VERBOSE].b) {
+      printf("[i=%d]::[%d/%d]\n", i, roll, options[SIDES].i);
+    }
+  }
+
+  printf("%.*s%d\n", (int)options[LABEL].s.len, options[LABEL].s.p, cum);
+
   return EXIT_SUCCESS;
 }

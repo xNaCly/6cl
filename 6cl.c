@@ -17,49 +17,63 @@ static char *SIX_FLAG_TYPE_TO_MAP[] = {
     [SIX_DOUBLE] = "double",
 };
 
+void print_flag(SixFlag *f, bool long_option) {
+  char *pre_and_postfix = "[]";
+  if (long_option) {
+    putc('\t', stdout);
+    pre_and_postfix = "  ";
+  }
+
+  printf("%c %c%c / %c%s", pre_and_postfix[0], OPTION_PREFIX, f->short_name,
+         OPTION_PREFIX, f->name);
+  if (f->type != SIX_BOOL) {
+    printf(" <%s=", SIX_FLAG_TYPE_TO_MAP[f->type]);
+    switch (f->type) {
+    case SIX_STR:
+      printf("`%.*s`", (int)f->s.len, f->s.p);
+      break;
+    case SIX_CHAR:
+      putc(f->c, stdout);
+      break;
+    case SIX_INT:
+      printf("%d", f->i);
+      break;
+    case SIX_LONG:
+      printf("%ld", f->l);
+      break;
+    case SIX_FLOAT:
+      printf("%g", f->f);
+      break;
+    case SIX_DOUBLE:
+      printf("%g", f->d);
+      break;
+    default:
+    }
+    putc('>', stdout);
+  }
+  putc(pre_and_postfix[1], stdout);
+  putc(' ', stdout);
+
+  if (long_option) {
+    if (f->description) {
+      printf("\n\t\t%s\n", f->description);
+    }
+    putc('\n', stdout);
+  }
+}
+
 // part of -h, --help, +h, +help and any unknown option
 static void usage(const char *pname, Six *h) {
   // should i put this to stdout or stderr
   printf("usage %s: ", pname);
   size_t len = strlen(pname) + 7;
   for (size_t i = 0; i < h->flag_count; i++) {
-    SixFlag *f = &h->flags[i];
-    char *pre_and_postfix = "[]";
-    printf("%c %c%c | %c%s", pre_and_postfix[0], OPTION_PREFIX, f->short_name,
-           OPTION_PREFIX, f->name);
-
-    if (f->type != SIX_BOOL) {
-      printf("=<%s=", SIX_FLAG_TYPE_TO_MAP[f->type]);
-      switch (f->type) {
-      case SIX_STR:
-        printf("%.*s", (int)f->s.len, f->s.p);
-        break;
-      case SIX_CHAR:
-        putc(f->c, stdout);
-        break;
-      case SIX_INT:
-        printf("%d", f->i);
-        break;
-      case SIX_LONG:
-        printf("%ld", f->l);
-        break;
-      case SIX_FLOAT:
-        printf("%g", f->f);
-        break;
-      case SIX_DOUBLE:
-        printf("%g", f->d);
-        break;
-      default:
-      }
-      putc('>', stdout);
-    }
-    putc(pre_and_postfix[1], stdout);
-    putc(' ', stdout);
-
-    if ((i + 1) % 3 == 0 && i + 1 < len) {
+    print_flag(&h->flags[i], false);
+    if ((i + 1) % 3 == 0 && i + 1 < h->flag_count) {
       printf("\n%*.s ", (int)len, "");
     }
   }
+
   if (h->name_for_rest_arguments) {
     puts(h->name_for_rest_arguments);
   } else {
@@ -150,8 +164,10 @@ void SixParse(Six *six, size_t argc, char **argv) {
       // long help page with option description and stuff
       if (strncmp(arg_cur.p, help.p, help.len) == 0) {
         usage(argv[0], six);
-        // TODO: print rest here
-        puts("HELPPAGE");
+        printf("\nOption:\n");
+        for (size_t j = 0; j < six->flag_count; j++) {
+          print_flag(&six->flags[j], true);
+        }
         exit(EXIT_SUCCESS);
       }
     }
