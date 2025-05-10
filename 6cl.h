@@ -1,20 +1,13 @@
 #pragma once
 #include <stddef.h>
 
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
+#endif
+
 #ifndef SIX_MAX_REST
 #define SIX_MAX_REST 16
 #endif
-
-// SixStr is a 0 copy window into a string
-typedef struct {
-  const char *p;
-  size_t len;
-} SixStr;
-
-#define SIX_STR_NEW(CSTR)                                                      \
-  (SixStr) { .p = (CSTR), .len = sizeof(CSTR) - 1 }
-#define SIX_STR_NEW_RUNTIME(CSTR)                                              \
-  (SixStr) { .p = (CSTR), .len = strnlen(CSTR, 256) }
 
 typedef enum {
   SIX_STR,
@@ -42,7 +35,7 @@ typedef struct {
   // for the option, or with the default value thats already set.
   union {
     // string value
-    SixStr s;
+    char *s;
     // boolean value
     bool b;
     // char value
@@ -64,7 +57,7 @@ typedef struct Six {
   // usage will be postfixed with this
   const char *name_for_rest_arguments;
   // rest holds all arguments not matching any defined options
-  SixStr rest[SIX_MAX_REST];
+  char *rest[SIX_MAX_REST];
   size_t rest_count;
 } Six;
 

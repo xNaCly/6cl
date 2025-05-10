@@ -1,5 +1,5 @@
 FLAGS := -std=c23 \
-		 -D_GNU_SOURCE \
+		-D_GNU_SOURCE \
         -Wall \
         -Wextra \
         -Werror \

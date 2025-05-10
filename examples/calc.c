@@ -90,7 +90,7 @@ int main(int argc, char **argv) {
     }
     if (op != UNKNOWN) {
       ERR("Got more than one action, exiting...");
-      break;
+      exit(EXIT_FAILURE);
     } else {
       op = i;
     }
@@ -106,15 +106,12 @@ int main(int argc, char **argv) {
   case UNKNOWN:
   default:
     ERR("Unkown option / no option provided")
-    break;
+    exit(EXIT_FAILURE);
   }
 
   double acum = 0;
   for (size_t i = 0; i < s.rest_count; i++) {
-    char t[s.rest[i].len + 1];
-    memcpy(t, s.rest[i].p, s.rest[i].len);
-    t[s.rest[i].len] = 0;
-    double d = strtod(t, NULL);
+    double d = strtod(s.rest[i], NULL);
 
     if (verbose) {
       printf("%g", d);

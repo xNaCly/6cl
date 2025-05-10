@@ -24,7 +24,7 @@ void dice(int *throws, unsigned int n, unsigned int m) {
   }
 }
 
-typedef enum { UNKNOWN = -1, ROLLS, SIDES, LABEL, VERBOSE } Option;
+typedef enum { UNKNOWN = -1, ROLLS, SIDES, LABEL, VERBOSE, CHAR } Option;
 
 int main(int argc, char **argv) {
   srand((unsigned int)time(NULL));
@@ -44,7 +44,7 @@ int main(int argc, char **argv) {
           {
               .name = "label",
               .short_name = 'l',
-              .s = SIX_STR_NEW("=> "),
+              .s = "=> ",
               .type = SIX_STR,
               .description = "prefix for the dice roll result",
           },
@@ -61,6 +61,10 @@ int main(int argc, char **argv) {
   s.flag_count = sizeof(options) / sizeof(SixFlag);
 
   SixParse(&s, argc, argv);
+  if (s.flags[VERBOSE].b) {
+    printf("Config{rolls=%d, sides=%d, label=`%s`}\n", s.flags[ROLLS].i,
+           s.flags[SIDES].i, s.flags[LABEL].s);
+  }
   if (options[ROLLS].i < 1) {
     ERR("Rolls can't be < 1");
     return EXIT_FAILURE;
@@ -74,11 +78,11 @@ int main(int argc, char **argv) {
     int roll = throws[i];
     cum += roll;
     if (options[VERBOSE].b) {
-      printf("[i=%d]::[%d/%d]\n", i, roll, options[SIDES].i);
+      printf("[roll=%02d]::[%02d/%02d]\n", i + 1, roll, options[SIDES].i);
     }
   }
 
-  printf("%.*s%d\n", (int)options[LABEL].s.len, options[LABEL].s.p, cum);
+  printf("%s%d\n", options[LABEL].s, cum);
 
   return EXIT_SUCCESS;
 }
