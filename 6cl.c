@@ -3,7 +3,7 @@
 #include <string.h>
 
 #ifndef OPTION_PREFIX
-#define OPTION_PREFIX '+'
+#define OPTION_PREFIX '-'
 #endif
 
 #define __HASH_TABLE_SIZE 512
@@ -62,6 +62,13 @@ void print_flag(SixFlag *f, bool long_option) {
   }
 }
 
+static SixFlag HELP_FLAG = {
+    .name = "help",
+    .short_name = 'h',
+    .description = "help page and usage",
+    .type = SIX_BOOL,
+};
+
 // part of -h, --help, +h, +help and any unknown option
 static void usage(const char *pname, Six *h) {
   // should i put this to stdout or stderr
@@ -73,6 +80,8 @@ static void usage(const char *pname, Six *h) {
       printf("\n%*.s ", (int)len, "");
     }
   }
+
+  print_flag(&HELP_FLAG, false);
 
   if (h->name_for_rest_arguments) {
     puts(h->name_for_rest_arguments);
@@ -152,7 +161,7 @@ void SixParse(Six *six, size_t argc, char **argv) {
 
       // if not boolean, the next argument is the argument
       if (six->flags[option_idx].type != SIX_BOOL) {
-        // TODO: parse arguments
+
       } else {
         six->flags[option_idx].b = true;
       }
@@ -168,6 +177,7 @@ void SixParse(Six *six, size_t argc, char **argv) {
         for (size_t j = 0; j < six->flag_count; j++) {
           print_flag(&six->flags[j], true);
         }
+        print_flag(&HELP_FLAG, true);
         exit(EXIT_SUCCESS);
       }
     }
