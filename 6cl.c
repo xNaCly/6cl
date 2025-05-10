@@ -4,10 +4,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#ifndef OPTION_PREFIX
-#define OPTION_PREFIX '+'
-#endif
-
 #define __HASH_TABLE_SIZE 512
 #define __HASH_TABLE_MASK (__HASH_TABLE_SIZE - 1)
 
@@ -34,8 +30,8 @@ void print_flag(SixFlag *f, bool long_option) {
     pre_and_postfix = "  ";
   }
 
-  printf("%c %c%c / %c%s", pre_and_postfix[0], OPTION_PREFIX, f->short_name,
-         OPTION_PREFIX, f->name);
+  printf("%c %c%c / %c%s", pre_and_postfix[0], SIX_OPTION_PREFIX, f->short_name,
+         SIX_OPTION_PREFIX, f->name);
   if (f->type != SIX_BOOL) {
     printf(" <%s=", SIX_FLAG_TYPE_TO_MAP[f->type]);
     switch (f->type) {
@@ -86,11 +82,12 @@ static void usage(const char *pname, const Six *h) {
   size_t len = strlen(pname) + 7;
   for (size_t i = 0; i < h->flag_count; i++) {
     print_flag(&h->flags[i], false);
-    if ((i + 1) % 3 == 0 && i + 1 < h->flag_count) {
+    if ((i + 1) % 2 == 0 && i + 1 < h->flag_count) {
       printf("\n%*.s ", (int)len, "");
     }
   }
 
+  printf("\n%*.s ", (int)len, "");
   print_flag(&HELP_FLAG, false);
 
   if (h->name_for_rest_arguments) {
@@ -102,11 +99,51 @@ static void usage(const char *pname, const Six *h) {
 
 static void help(const char *pname, const Six *h) {
   usage(pname, h);
+  size_t len = strlen(pname);
   printf("\nOption:\n");
   for (size_t j = 0; j < h->flag_count; j++) {
     print_flag(&h->flags[j], true);
   }
   print_flag(&HELP_FLAG, true);
+
+  printf("Examples: ");
+  for (size_t i = 0; i < 2; i++) {
+    printf("\n\t%s ", pname);
+    for (size_t j = 0; j < h->flag_count; j++) {
+      SixFlag *s = &h->flags[j];
+      if (i) {
+        printf("%c%s", SIX_OPTION_PREFIX, s->name);
+      } else {
+        printf("%c%c", SIX_OPTION_PREFIX, s->short_name);
+      }
+      switch (s->type) {
+      case SIX_STR:
+        printf(" \"%s\"", s->s);
+        break;
+      case SIX_CHAR:
+        printf(" %c", s->c);
+        break;
+      case SIX_INT:
+        printf(" %d", s->i);
+        break;
+      case SIX_LONG:
+        printf(" %zu", s->l);
+        break;
+      case SIX_FLOAT:
+      case SIX_DOUBLE:
+        printf(" %g", s->f);
+        break;
+      case SIX_BOOL:
+      default:
+        break;
+      }
+      putc(' ', stdout);
+      if ((j + 1) % 2 == 0 && j + 1 < h->flag_count) {
+        printf("\\\n\t %*.s", (int)len, "");
+      }
+    }
+    puts("");
+  }
 }
 
 static size_t fnv1a(const char *str, size_t len) {
@@ -297,7 +334,7 @@ void SixParse(Six *six, size_t argc, char **argv) {
     SixStr arg_cur = (SixStr){.p = (argv[i]), .len = strnlen(argv[i], 256)};
 
     // not starting with + means: no option, thus rest
-    if (arg_cur.p[0] != OPTION_PREFIX) {
+    if (arg_cur.p[0] != SIX_OPTION_PREFIX) {
       six->rest[six->rest_count++] = argv[i];
       continue;
     }

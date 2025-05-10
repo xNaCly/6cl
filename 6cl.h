@@ -1,6 +1,10 @@
 #pragma once
 #include <stddef.h>
 
+#ifndef SIX_OPTION_PREFIX
+#define SIX_OPTION_PREFIX '+'
+#endif
+
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
 #endif

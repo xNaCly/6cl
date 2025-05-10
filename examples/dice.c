@@ -11,6 +11,7 @@
  * Rolled: 3 + 7 + 5 =15
  */
 #include "../6cl.h"
+
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -24,7 +25,7 @@ void dice(int *throws, unsigned int n, unsigned int m) {
   }
 }
 
-typedef enum { UNKNOWN = -1, ROLLS, SIDES, LABEL, VERBOSE, CHAR } Option;
+typedef enum { UNKNOWN = -1, ROLLS, SIDES, LABEL, VERBOSE } Option;
 
 int main(int argc, char **argv) {
   srand((unsigned int)time(NULL));
@@ -65,6 +66,7 @@ int main(int argc, char **argv) {
     printf("Config{rolls=%d, sides=%d, label=`%s`}\n", s.flags[ROLLS].i,
            s.flags[SIDES].i, s.flags[LABEL].s);
   }
+
   if (options[ROLLS].i < 1) {
     ERR("Rolls can't be < 1");
     return EXIT_FAILURE;
