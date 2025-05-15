@@ -333,22 +333,32 @@ void SixParse(Six *six, size_t argc, char **argv) {
   for (size_t i = 1; i < argc; i++) {
     SixStr arg_cur = (SixStr){.p = (argv[i]), .len = strnlen(argv[i], 256)};
 
-    // not starting with + means: no option, thus rest
+    // not starting with PREFIX means: no option, thus rest
     if (arg_cur.p[0] != SIX_OPTION_PREFIX) {
+      if (six->rest_count + 1 >= SIX_MAX_REST) {
+        fprintf(stderr, "Not enough space left for more rest arguments\n");
+        goto err;
+      }
       six->rest[six->rest_count++] = argv[i];
       continue;
     }
 
     // check if short option
     if (arg_cur.len == 2) {
+      int cc = arg_cur.p[1];
+      if (cc > 256 || cc < 0) {
+        fprintf(stderr, "Unkown short option '%c'\n", arg_cur.p[1]);
+        goto err;
+      }
+
       // single char option usage/help page
-      if (arg_cur.p[1] == 'h') {
+      if (cc == 'h') {
         help(argv[0], six);
         exit(EXIT_SUCCESS);
       }
 
       // check if short option is a registered one
-      short option_idx = table_short[(short)arg_cur.p[1]];
+      short option_idx = table_short[(int)cc];
       if (!option_idx) {
         fprintf(stderr, "Unkown short option '%c'\n", arg_cur.p[1]);
         goto err;

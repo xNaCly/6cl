@@ -1,6 +1,6 @@
 /*
  * A dice roller that simulates rolling N dice with M sides, optionally
- * labeled, and with verbose output for each roll.
+ * labeled, and with verbose output to print each roll result.
  *
  * $ gcc ./dice.c ../6cl.c -o dice
  * $ ./dice +n 4 +m 6
